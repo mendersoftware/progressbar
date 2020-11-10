@@ -27,9 +27,9 @@ func TestProgressTTY(t *testing.T) {
 		Renderer: &TTYRenderer{
 			Out:            b,
 			ProgressMarker: ".",
-			terminalWidth: 80,
+			terminalWidth:  80,
 		},
-		Size:           100,
+		Size: 100,
 	}
 	p.Tick(10)
 	assert.Equal(t,
@@ -69,9 +69,9 @@ func TestProgressNoTTY(t *testing.T) {
 		Renderer: &NoTTYRenderer{
 			Out:            b,
 			ProgressMarker: ".",
-			terminalWidth: 100,
+			terminalWidth:  100,
 		},
-		Size:           100,
+		Size: 100,
 	}
 	p.Tick(10)
 	assert.Equal(t,
