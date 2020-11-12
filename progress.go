@@ -33,6 +33,7 @@ type Bar struct {
 	Size         int64
 	currentCount int64
 	Renderer
+	Percentage int
 }
 
 func New(size int64) *Bar {
@@ -43,6 +44,7 @@ func New(size int64) *Bar {
 				ProgressMarker: ".",
 				terminalWidth:  80,
 			},
+			Size: size,
 		}
 	} else {
 		return &Bar{
@@ -51,6 +53,7 @@ func New(size int64) *Bar {
 				ProgressMarker: ".",
 				terminalWidth:  80,
 			},
+			Size: size,
 		}
 	}
 }
@@ -58,7 +61,9 @@ func New(size int64) *Bar {
 func (b *Bar) Tick(n int64) {
 	b.currentCount += n
 	if b.Size > 0 {
-		b.Renderer.Render(int((float64(b.currentCount) / float64(b.Size)) * 100))
+		percentage := int((float64(b.currentCount) / float64(b.Size)) * 100)
+		b.Percentage = percentage
+		b.Renderer.Render(percentage)
 	}
 }
 
@@ -75,9 +80,13 @@ type TTYRenderer struct {
 	Out            io.Writer // Output device
 	ProgressMarker string
 	terminalWidth  int
+	lastPercentage int
 }
 
 func (p *TTYRenderer) Render(percentage int) {
+	if percentage <= p.lastPercentage {
+		return
+	}
 	suffix := fmt.Sprintf(" - %3d %%", percentage)
 	widthAvailable := p.terminalWidth - len(suffix)
 	number_of_dots := int((float64(widthAvailable) * float64(percentage)) / 100)
@@ -95,10 +104,14 @@ func (p *TTYRenderer) Render(percentage int) {
 	if number_of_fillers < 0 {
 		return
 	}
+	p.lastPercentage = percentage
 	fmt.Fprintf(p.Out, "\r%s%s%s",
 		strings.Repeat(p.ProgressMarker, number_of_dots),
 		strings.Repeat(" ", number_of_fillers),
 		suffix)
+	if percentage == 100 {
+		fmt.Fprintln(p.Out)
+	}
 }
 
 type NoTTYRenderer struct {
