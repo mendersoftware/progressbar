@@ -33,6 +33,7 @@ type Bar struct {
 	Size         int64
 	currentCount int64
 	Renderer
+	Percentage int
 }
 
 func New(size int64) *Bar {
@@ -61,6 +62,7 @@ func (b *Bar) Tick(n int64) {
 	b.currentCount += n
 	if b.Size > 0 {
 		percentage := int((float64(b.currentCount) / float64(b.Size)) * 100)
+		b.Percentage = percentage
 		b.Renderer.Render(percentage)
 	}
 }
