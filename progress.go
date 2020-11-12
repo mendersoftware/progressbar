@@ -80,9 +80,13 @@ type TTYRenderer struct {
 	Out            io.Writer // Output device
 	ProgressMarker string
 	terminalWidth  int
+	lastPercentage int
 }
 
 func (p *TTYRenderer) Render(percentage int) {
+	if percentage <= p.lastPercentage {
+		return
+	}
 	suffix := fmt.Sprintf(" - %3d %%", percentage)
 	widthAvailable := p.terminalWidth - len(suffix)
 	number_of_dots := int((float64(widthAvailable) * float64(percentage)) / 100)
@@ -100,6 +104,7 @@ func (p *TTYRenderer) Render(percentage int) {
 	if number_of_fillers < 0 {
 		return
 	}
+	p.lastPercentage = percentage
 	fmt.Fprintf(p.Out, "\r%s%s%s",
 		strings.Repeat(p.ProgressMarker, number_of_dots),
 		strings.Repeat(" ", number_of_fillers),
