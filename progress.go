@@ -43,6 +43,7 @@ func New(size int64) *Bar {
 				ProgressMarker: ".",
 				terminalWidth:  80,
 			},
+			Size: size,
 		}
 	} else {
 		return &Bar{
@@ -51,6 +52,7 @@ func New(size int64) *Bar {
 				ProgressMarker: ".",
 				terminalWidth:  80,
 			},
+			Size: size,
 		}
 	}
 }
@@ -58,7 +60,8 @@ func New(size int64) *Bar {
 func (b *Bar) Tick(n int64) {
 	b.currentCount += n
 	if b.Size > 0 {
-		b.Renderer.Render(int((float64(b.currentCount) / float64(b.Size)) * 100))
+		percentage := int((float64(b.currentCount) / float64(b.Size)) * 100)
+		b.Renderer.Render(percentage)
 	}
 }
 
