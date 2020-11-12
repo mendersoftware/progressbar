@@ -109,6 +109,9 @@ func (p *TTYRenderer) Render(percentage int) {
 		strings.Repeat(p.ProgressMarker, number_of_dots),
 		strings.Repeat(" ", number_of_fillers),
 		suffix)
+	if percentage == 100 {
+		fmt.Fprintln(p.Out)
+	}
 }
 
 type NoTTYRenderer struct {
