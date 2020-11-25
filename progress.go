@@ -42,7 +42,7 @@ func New(size int64) *Bar {
 			Renderer: &TTYRenderer{
 				Out:            os.Stderr,
 				ProgressMarker: ".",
-				terminalWidth:  80,
+				terminalWidth:  70,
 			},
 			Size: size,
 		}
@@ -51,7 +51,7 @@ func New(size int64) *Bar {
 			Renderer: &NoTTYRenderer{
 				Out:            os.Stderr,
 				ProgressMarker: ".",
-				terminalWidth:  80,
+				terminalWidth:  70,
 			},
 			Size: size,
 		}
