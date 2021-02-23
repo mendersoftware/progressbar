@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -74,27 +74,29 @@ func TestProgressNoTTY(t *testing.T) {
 		Size: 100,
 	}
 	p.Tick(10)
+	header := "0%" + strings.Repeat(" ", 45) + "50%" + strings.Repeat(" ", 45) + "100%\n" +
+		"|" + strings.Repeat("-", 48) + "|" + strings.Repeat("-", 48) + "|\n"
 	assert.Equal(t,
-		strings.Repeat(".", 10),
+		header+strings.Repeat(".", 10),
 		b.String())
 	p.Tick(10)
 	assert.Equal(t,
-		strings.Repeat(".", 20),
+		header+strings.Repeat(".", 20),
 		b.String())
 	p.Tick(10)
 	assert.Equal(t,
-		strings.Repeat(".", 30),
+		header+strings.Repeat(".", 30),
 		b.String())
 	p.Tick(50)
 	assert.Equal(t,
-		strings.Repeat(".", 80),
+		header+strings.Repeat(".", 80),
 		b.String())
 	p.Tick(20)
 	assert.Equal(t,
-		strings.Repeat(".", 100),
+		header+strings.Repeat(".", 100),
 		b.String())
 	p.Tick(10)
 	assert.Equal(t,
-		strings.Repeat(".", 100),
+		header+strings.Repeat(".", 100),
 		b.String())
 }
