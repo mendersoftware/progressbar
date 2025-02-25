@@ -17,8 +17,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"strings"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProgressTTY(t *testing.T) {
@@ -59,7 +60,28 @@ func TestProgressTTY(t *testing.T) {
 	b.Reset()
 	p.Tick(10)
 	assert.Equal(t,
-		"\r........................................................................ - 110 %",
+		"",
+		b.String())
+}
+
+func TestProgressTTYOverTick(t *testing.T) {
+	b := &bytes.Buffer{}
+	p := &Bar{
+		Renderer: &TTYRenderer{
+			Out:            b,
+			ProgressMarker: ".",
+			terminalWidth:  80,
+		},
+		Size: 100,
+	}
+	p.Tick(80)
+	assert.Equal(t,
+		"\r.........................................................                -  80 %",
+		b.String())
+	b.Reset()
+	p.Tick(30)
+	assert.Equal(t,
+		"\r........................................................................ - 100 %\n",
 		b.String())
 }
 
