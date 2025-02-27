@@ -60,6 +60,10 @@ func New(size int64) *Bar {
 
 func (b *Bar) Tick(n int64) {
 	b.currentCount += n
+	// The last tick may be bigger than the remaining size
+	if b.currentCount > b.Size {
+		b.currentCount = b.Size
+	}
 	if b.Size > 0 {
 		percentage := int((float64(b.currentCount) / float64(b.Size)) * 100)
 		b.Percentage = percentage
@@ -91,10 +95,6 @@ func (p *TTYRenderer) Render(percentage int) {
 	widthAvailable := p.terminalWidth - len(suffix)
 	number_of_dots := int((float64(widthAvailable) * float64(percentage)) / 100)
 	number_of_fillers := widthAvailable - number_of_dots
-	if percentage > 100 {
-		number_of_dots = widthAvailable
-		number_of_fillers = 0
-	}
 	if percentage < 0 {
 		return
 	}
