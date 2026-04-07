@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 	// "golang.org/x/sys/unix" - Do not add for now (split into minimal and not (?))
 )
 
@@ -36,13 +37,25 @@ type Bar struct {
 	Percentage int
 }
 
+const defaultTermWidth = 70
+
+func getTermWidth(fd uintptr) int {
+	width, _, err := term.GetSize(int(fd))
+	if err != nil || width <= 30 || width >= defaultTermWidth {
+		return defaultTermWidth
+	}
+
+	return width
+}
+
 func New(size int64) *Bar {
-	if isatty.IsTerminal(os.Stderr.Fd()) {
+	stderrFd := os.Stderr.Fd()
+	if isatty.IsTerminal(stderrFd) {
 		return &Bar{
 			Renderer: &TTYRenderer{
 				Out:            os.Stderr,
 				ProgressMarker: ".",
-				terminalWidth:  70,
+				terminalWidth:  getTermWidth(stderrFd),
 			},
 			Size: size,
 		}
@@ -51,7 +64,7 @@ func New(size int64) *Bar {
 			Renderer: &NoTTYRenderer{
 				Out:            os.Stderr,
 				ProgressMarker: ".",
-				terminalWidth:  70,
+				terminalWidth:  defaultTermWidth,
 			},
 			Size: size,
 		}
@@ -85,30 +98,55 @@ type TTYRenderer struct {
 	ProgressMarker string
 	terminalWidth  int
 	lastPercentage int
+	lastBarWidth   int
 }
 
 func (p *TTYRenderer) Render(percentage int) {
 	if percentage <= p.lastPercentage {
 		return
 	}
+
+	fullTermWidth := 0
+	if f, ok := p.Out.(*os.File); ok {
+		fd := f.Fd()
+		p.terminalWidth = getTermWidth(fd) - 5
+		fullTermWidth = getTermWidth(fd)
+	}
+
+	if p.lastBarWidth > 0 && fullTermWidth > 0 {
+		wrappedLines := (p.lastBarWidth - 1) / fullTermWidth
+		if wrappedLines > 0 {
+			fmt.Fprintf(p.Out, "\033[%dA", wrappedLines)
+		}
+	}
+
 	suffix := fmt.Sprintf(" - %3d %%", percentage)
 	widthAvailable := p.terminalWidth - len(suffix)
+	if widthAvailable < 0 {
+		widthAvailable = 0
+	}
+
 	number_of_dots := int((float64(widthAvailable) * float64(percentage)) / 100)
 	number_of_fillers := widthAvailable - number_of_dots
 	if percentage < 0 {
 		return
 	}
+
 	if number_of_dots < 0 {
-		return
+		number_of_dots = 0
 	}
 	if number_of_fillers < 0 {
-		return
+		number_of_fillers = 0
 	}
+
 	p.lastPercentage = percentage
-	fmt.Fprintf(p.Out, "\r%s%s%s",
+	p.lastBarWidth = p.terminalWidth
+
+	fmt.Fprintf(p.Out, "\r%s%s%s\033[J",
 		strings.Repeat(p.ProgressMarker, number_of_dots),
 		strings.Repeat(" ", number_of_fillers),
 		suffix)
+
 	if percentage == 100 {
 		fmt.Fprintln(p.Out)
 	}
