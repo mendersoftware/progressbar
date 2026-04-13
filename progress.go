@@ -145,6 +145,6 @@ func (p *NoTTYRenderer) Render(percentage int) {
 			numberOfDots = p.terminalWidth - p.lastNumberOfDots
 		}
 		p.lastNumberOfDots += numberOfDots
-		fmt.Fprintf(p.Out, str)
+		fmt.Fprint(p.Out, str)
 	}
 }
