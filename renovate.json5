@@ -2,39 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
   "extends": [
-    "config:recommended",
-    ":gitSignOff"
+    "github>mendersoftware/mendertesting//renovate/common.json5",
+    "github>mendersoftware/mendertesting//renovate/go.json5",
+    "github>mendersoftware/mendertesting//renovate/go-yocto-lts.json5",
+    ":rebaseStalePrs"
   ],
 
-  "reviewersFromCodeOwners": true,
-
-  "semanticCommits": "enabled",
-  "semanticCommitType": "chore",
-  "semanticCommitScope": "deps",
-
-  "rebaseWhen": "conflicted",
-
-  "prHourlyLimit": 2,
-  "prConcurrentLimit": 5,
-
-  "baseBranchPatterns": ["master"],
-
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "schedule": ["at any time"],
-    "labels": ["security"]
-  },
-
-  "packageRules": [
-    {
-      "matchManagers": ["gitlabci", "gitlabci-include"],
-      "semanticCommitType": "ci",
-      "semanticCommitScope": ""
-    },
-    {
-      "matchManagers": ["gomod"],
-      "groupName": "golang-dependencies",
-      "groupSlug": "golang-dependencies"
-    }
-  ]
+  "baseBranchPatterns": ["master"]
 }
